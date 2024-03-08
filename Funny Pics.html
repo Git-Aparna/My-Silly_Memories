@@ -1,0 +1,243 @@
+Certainly! Here's the complete code with the Firebase initialization script and CSS included:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Silly Memories</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    body {
+        font-family: Comic Sans MS;
+        margin: 0;
+        padding: 0;
+        background-color: #FFE8D6; /* Light Blue */
+        color: #000000; /* Black */
+    }
+
+    .header {
+        background-color: #CB997E; /* Royal Blue */
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-family: Candara;
+    }
+
+    .button-container {
+        text-align: right;
+        padding: 15px;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding-top: 60px;
+    }
+
+    .modal-content {
+        background-color: #ffffe0; /* Light Yellow */
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #000000; /* Black */
+        width: 80%;
+    }
+
+    .close {
+        color: #000000; /* Black */
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #555;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .memory-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .memory {
+        margin: 10px;
+        padding: 10px;
+        border: 0px;
+        background-color: #FFBF69; /* Light Blue */
+        text-align: center;
+        position: relative;
+        border-radius: 15px;
+    }
+
+    .memory img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+    }
+
+    .caption {
+        color: #000000; /* Black */
+        font-style: italic;
+    }
+
+    .delete-button {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: #000000; /* Black */
+        color: white;
+        border: none;
+        padding: 5px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .buttox {
+        font-family: Comic Sans MS;
+        color: #000000;
+        background-color: #FFBF69;
+        border-width: 2px;
+        border-color: #FFBF69;
+        border-radius: 5px;
+        margin: 5px;
+        cursor: pointer;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    .file-upload-container {
+        font-family: Comic Sans MS;
+        color: #000000;
+        background-color: #FFBF69;
+        border: 2px solid #FFBF69;
+        border-radius: 5px;
+        margin: 5px;
+        padding: 5px 10px;
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .file-upload-container input[type="file"] {
+        display: none;
+    }
+    
+    .memory img {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>My Silly Memories</h1>
+</div>
+
+<div class="button-container">
+    <button class="buttox" id="addMemoryBtn">Add Memory</button>
+    <button class="buttox" id="changeThemeBtn">Change Theme</button>
+</div>
+
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Add Memory</h2>
+        <form id="memoryForm">
+            <label for="file" class="file-upload-container">
+                <span>Choose File</span>
+                <input type="file" id="file" name="file" accept="image/*">
+            </label><br><br>
+            <label for="caption">Caption:</label><br>
+            <input type="text" id="caption" name="caption"><br><br>
+            <button class="buttox" type="button" id="submitMemoryBtn">Done!</button>
+        </form>
+    </div>
+</div>
+
+<div id="themeModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Change Theme</h2>
+        <button class="buttox" id="theme1Btn">Theme 1</button>
+        <button class="buttox" id="theme2Btn">Theme 2</button>
+        <button class="buttox" id="theme3Btn">Theme 3</button>
+    </div>
+</div>
+
+<div class="memory-container" id="memoryContainer"></div>
+
+<script>
+var db;
+
+// Open the IndexedDB database
+var request = indexedDB.open("silly_memories", 1);
+
+request.onerror = function(event) {
+    console.log("Error opening database");
+};
+
+request.onsuccess = function(event) {
+    console.log("Database opened successfully");
+    db = event.target.result;
+    displayMemories();
+};
+
+request.onupgradeneeded = function(event) {
+    var db = event.target.result;
+    var objectStore = db.createObjectStore("memories", { keyPath: "id", autoIncrement: true });
+    objectStore.createIndex("image", "image", { unique: false });
+    objectStore.createIndex("caption", "caption", { unique: false });
+};
+
+// When the user clicks the button, open the modal
+document.getElementById("addMemoryBtn").onclick = function() {
+    document.getElementById("myModal").style.display = "block";
+}
+
+// Your existing event listeners and functions here
+
+</script>
+
+<!-- Firebase initialization script -->
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+
+  // Your web app's Firebase configuration
+  // Replace this with your actual Firebase project configuration
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID",
+    measurementId: "YOUR_MEASUREMENT_ID"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+
+</body>
+</html>
+
